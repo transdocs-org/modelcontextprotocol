@@ -1,50 +1,43 @@
 ---
-title: Elicitation
+title: 信息获取
 ---
 
 <div id="enable-section-numbers" />
 
-<Info>**Protocol Revision**: 2025-06-18</Info>
+<Info>**协议修订**：2025-06-18</Info>
 
 <Note>
 
-Elicitation is newly introduced in this version of the MCP specification and its design may evolve in future protocol versions.
+信息获取（Elicitation）是在本版MCP规范中首次引入的功能，其设计可能在未来的协议版本中继续演进。
 
 </Note>
 
-The Model Context Protocol (MCP) provides a standardized way for servers to request additional
-information from users through the client during interactions. This flow allows clients to
-maintain control over user interactions and data sharing while enabling servers to gather
-necessary information dynamically.
-Servers request structured data from users with JSON schemas to validate responses.
+模型上下文协议（MCP）提供了一种标准化方式，使服务器在与用户交互过程中可以通过客户端请求额外信息。这种流程允许客户端在维持用户交互与数据共享控制权的同时，使服务器能够动态获取所需信息。
+服务器使用JSON Schema来验证用户响应，从而请求结构化数据。
 
-## User Interaction Model
+## 用户交互模型
 
-Elicitation in MCP allows servers to implement interactive workflows by enabling user input
-requests to occur _nested_ inside other MCP server features.
+MCP中的信息获取功能允许服务器通过在其他MCP服务器功能中嵌套用户输入请求，实现交互式工作流。
 
-Implementations are free to expose elicitation through any interface pattern that suits
-their needs&mdash;the protocol itself does not mandate any specific user interaction
-model.
+实现方可以自由选择任何适合其需求的界面模式来呈现信息获取流程——协议本身不规定特定的用户交互模型。
 
 <Warning>
 
-For trust & safety and security:
+出于信任、安全与隐私考虑：
 
-- Servers **MUST NOT** use elicitation to request sensitive information.
+- 服务器 **不得** 使用信息获取功能请求敏感信息。
 
-Applications **SHOULD**:
+应用程序 **应该**：
 
-- Provide UI that makes it clear which server is requesting information
-- Allow users to review and modify their responses before sending
-- Respect user privacy and provide clear decline and cancel options
+- 提供清晰的界面，使用户明确知道是哪个服务器在请求信息
+- 允许用户在发送前查看和修改其响应
+- 尊重用户隐私，并提供清晰的拒绝和取消选项
 
 </Warning>
 
-## Capabilities
+## 能力声明
 
-Clients that support elicitation **MUST** declare the `elicitation` capability during
-[initialization](/specification/2025-06-18/basic/lifecycle#initialization):
+支持信息获取功能的客户端必须在[初始化](/specification/2025-06-18/basic/lifecycle#initialization)期间声明 `elicitation` 能力：
 
 ```json
 {
@@ -54,15 +47,15 @@ Clients that support elicitation **MUST** declare the `elicitation` capability d
 }
 ```
 
-## Protocol Messages
+## 协议消息
 
-### Creating Elicitation Requests
+### 创建信息获取请求
 
-To request information from a user, servers send an `elicitation/create` request:
+服务器通过发送 `elicitation/create` 请求来获取用户信息：
 
-#### Simple Text Request
+#### 简单文本请求
 
-**Request:**
+**请求：**
 
 ```json
 {
@@ -70,7 +63,7 @@ To request information from a user, servers send an `elicitation/create` request
   "id": 1,
   "method": "elicitation/create",
   "params": {
-    "message": "Please provide your GitHub username",
+    "message": "请输入你的GitHub用户名",
     "requestedSchema": {
       "type": "object",
       "properties": {
@@ -84,7 +77,7 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-**Response:**
+**响应：**
 
 ```json
 {
@@ -99,9 +92,9 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-#### Structured Data Request
+#### 结构化数据请求
 
-**Request:**
+**请求：**
 
 ```json
 {
@@ -109,23 +102,23 @@ To request information from a user, servers send an `elicitation/create` request
   "id": 2,
   "method": "elicitation/create",
   "params": {
-    "message": "Please provide your contact information",
+    "message": "请提供你的联系方式",
     "requestedSchema": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
-          "description": "Your full name"
+          "description": "你的全名"
         },
         "email": {
           "type": "string",
           "format": "email",
-          "description": "Your email address"
+          "description": "你的电子邮件地址"
         },
         "age": {
           "type": "number",
           "minimum": 18,
-          "description": "Your age"
+          "description": "你的年龄"
         }
       },
       "required": ["name", "email"]
@@ -134,7 +127,7 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-**Response:**
+**响应：**
 
 ```json
 {
@@ -151,7 +144,7 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-**Reject Response Example:**
+**拒绝响应示例：**
 
 ```json
 {
@@ -163,7 +156,7 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-**Cancel Response Example:**
+**取消响应示例：**
 
 ```json
 {
@@ -175,7 +168,7 @@ To request information from a user, servers send an `elicitation/create` request
 }
 ```
 
-## Message Flow
+## 消息流程
 
 ```mermaid
 sequenceDiagram
@@ -183,22 +176,22 @@ sequenceDiagram
     participant Client
     participant Server
 
-    Note over Server,Client: Server initiates elicitation
+    Note over Server,Client: 服务器发起信息获取请求
     Server->>Client: elicitation/create
 
-    Note over Client,User: Human interaction
-    Client->>User: Present elicitation UI
-    User-->>Client: Provide requested information
+    Note over Client,User: 用户交互
+    Client->>User: 显示信息获取界面
+    User-->>Client: 提供请求的信息
 
-    Note over Server,Client: Complete request
-    Client-->>Server: Return user response
+    Note over Server,Client: 完成请求
+    Client-->>Server: 返回用户响应
 
-    Note over Server: Continue processing with new information
+    Note over Server: 使用新信息继续处理
 ```
 
-## Request Schema
+## 请求Schema
 
-The `requestedSchema` field allows servers to define the structure of the expected response using a restricted subset of JSON Schema. To simplify implementation for clients, elicitation schemas are limited to flat objects with primitive properties only:
+`requestedSchema` 字段允许服务器使用受限的JSON Schema子集定义预期响应的结构。为了简化客户端实现，信息获取Schema仅限于仅包含基本属性的扁平对象：
 
 ```json
 "requestedSchema": {
@@ -206,8 +199,8 @@ The `requestedSchema` field allows servers to define the structure of the expect
   "properties": {
     "propertyName": {
       "type": "string",
-      "title": "Display Name",
-      "description": "Description of the property"
+      "title": "显示名称",
+      "description": "属性描述"
     },
     "anotherProperty": {
       "type": "number",
@@ -219,77 +212,77 @@ The `requestedSchema` field allows servers to define the structure of the expect
 }
 ```
 
-### Supported Schema Types
+### 支持的Schema类型
 
-The schema is restricted to these primitive types:
+Schema被限制为以下基本类型：
 
-1. **String Schema**
+1. **字符串Schema**
 
    ```json
    {
      "type": "string",
-     "title": "Display Name",
-     "description": "Description text",
+     "title": "显示名称",
+     "description": "描述文本",
      "minLength": 3,
      "maxLength": 50,
-     "format": "email" // Supported: "email", "uri", "date", "date-time"
+     "format": "email" // 支持: "email", "uri", "date", "date-time"
    }
    ```
 
-   Supported formats: `email`, `uri`, `date`, `date-time`
+   支持的格式：`email`、`uri`、`date`、`date-time`
 
-2. **Number Schema**
+2. **数字Schema**
 
    ```json
    {
-     "type": "number", // or "integer"
-     "title": "Display Name",
-     "description": "Description text",
+     "type": "number", // 或 "integer"
+     "title": "显示名称",
+     "description": "描述文本",
      "minimum": 0,
      "maximum": 100
    }
    ```
 
-3. **Boolean Schema**
+3. **布尔Schema**
 
    ```json
    {
      "type": "boolean",
-     "title": "Display Name",
-     "description": "Description text",
+     "title": "显示名称",
+     "description": "描述文本",
      "default": false
    }
    ```
 
-4. **Enum Schema**
+4. **枚举Schema**
    ```json
    {
      "type": "string",
-     "title": "Display Name",
-     "description": "Description text",
+     "title": "显示名称",
+     "description": "描述文本",
      "enum": ["option1", "option2", "option3"],
-     "enumNames": ["Option 1", "Option 2", "Option 3"]
+     "enumNames": ["选项1", "选项2", "选项3"]
    }
    ```
 
-Clients can use this schema to:
+客户端可以使用该Schema来：
 
-1. Generate appropriate input forms
-2. Validate user input before sending
-3. Provide better guidance to users
+1. 生成适当的输入表单
+2. 在发送前验证用户输入
+3. 为用户提供更好的引导
 
-Note that complex nested structures, arrays of objects, and other advanced JSON Schema features are intentionally not supported to simplify client implementation.
+请注意，为了简化客户端实现，有意不支持复杂的嵌套结构、对象数组和其他高级JSON Schema特性。
 
-## Response Actions
+## 响应动作
 
-Elicitation responses use a three-action model to clearly distinguish between different user actions:
+信息获取响应使用三态动作模型来明确区分不同的用户操作：
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "action": "accept", // or "decline" or "cancel"
+    "action": "accept", // 或 "decline" 或 "cancel"
     "content": {
       "propertyName": "value",
       "anotherProperty": 42
@@ -298,32 +291,32 @@ Elicitation responses use a three-action model to clearly distinguish between di
 }
 ```
 
-The three response actions are:
+三种响应动作如下：
 
-1. **Accept** (`action: "accept"`): User explicitly approved and submitted with data
-   - The `content` field contains the submitted data matching the requested schema
-   - Example: User clicked "Submit", "OK", "Confirm", etc.
+1. **接受** (`action: "accept"`)：用户明确批准并提交了数据
+   - `content` 字段包含符合请求Schema的提交数据
+   - 示例：用户点击了"提交"、"确定"、"确认"等
 
-2. **Decline** (`action: "decline"`): User explicitly declined the request
-   - The `content` field is typically omitted
-   - Example: User clicked "Reject", "Decline", "No", etc.
+2. **拒绝** (`action: "decline"`)：用户明确拒绝请求
+   - `content` 字段通常被省略
+   - 示例：用户点击了"拒绝"、"否"、"关闭"等
 
-3. **Cancel** (`action: "cancel"`): User dismissed without making an explicit choice
-   - The `content` field is typically omitted
-   - Example: User closed the dialog, clicked outside, pressed Escape, etc.
+3. **取消** (`action: "cancel"`)：用户在未明确选择的情况下关闭了界面
+   - `content` 字段通常被省略
+   - 示例：用户关闭对话框、点击外部区域、按下Esc键等
 
-Servers should handle each state appropriately:
+服务器应适当处理每种状态：
 
-- **Accept**: Process the submitted data
-- **Decline**: Handle explicit decline (e.g., offer alternatives)
-- **Cancel**: Handle dismissal (e.g., prompt again later)
+- **接受**：处理提交的数据
+- **拒绝**：处理明确拒绝（例如提供替代方案）
+- **取消**：处理界面关闭（例如稍后再次提示）
 
-## Security Considerations
+## 安全考量
 
-1. Servers **MUST NOT** request sensitive information through elicitation
-2. Clients **SHOULD** implement user approval controls
-3. Both parties **SHOULD** validate elicitation content against the provided schema
-4. Clients **SHOULD** provide clear indication of which server is requesting information
-5. Clients **SHOULD** allow users to decline elicitation requests at any time
-6. Clients **SHOULD** implement rate limiting
-7. Clients **SHOULD** present elicitation requests in a way that makes it clear what information is being requested and why
+1. 服务器 **不得** 通过信息获取请求敏感信息
+2. 客户端 **应该** 实现用户审批控制
+3. 双方 **应该** 根据提供的Schema验证信息获取内容
+4. 客户端 **应该** 明确显示是哪个服务器在请求信息
+5. 客户端 **应该** 允许用户随时拒绝信息获取请求
+6. 客户端 **应该** 实现速率限制
+7. 客户端 **应该** 以清楚表明请求内容及原因的方式呈现信息获取请求

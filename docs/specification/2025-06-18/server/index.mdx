@@ -1,42 +1,38 @@
 ---
-title: Overview
+title: 概述
 ---
 
-<Info>**Protocol Revision**: 2025-06-18</Info>
+<Info>**协议修订版本**: 2025-06-18</Info>
 
-Servers provide the fundamental building blocks for adding context to language models via
-MCP. These primitives enable rich interactions between clients, servers, and language
-models:
+服务器通过MCP为语言模型添加上下文提供了基本的构建模块。这些基础功能使得客户端、服务器和语言模型之间可以进行丰富的交互：
 
-- **Prompts**: Pre-defined templates or instructions that guide language model
-  interactions
-- **Resources**: Structured data or content that provides additional context to the model
-- **Tools**: Executable functions that allow models to perform actions or retrieve
-  information
+- **提示（Prompts）**：预定义的模板或指令，用于指导语言模型的交互
+- **资源（Resources）**：为模型提供额外上下文的结构化数据或内容
+- **工具（Tools）**：可执行的功能，允许模型执行操作或检索信息
 
-Each primitive can be summarized in the following control hierarchy:
+每个基础功能都可以在以下控制层次结构中进行归纳：
 
-| Primitive | Control                | Description                                        | Example                         |
-| --------- | ---------------------- | -------------------------------------------------- | ------------------------------- |
-| Prompts   | User-controlled        | Interactive templates invoked by user choice       | Slash commands, menu options    |
-| Resources | Application-controlled | Contextual data attached and managed by the client | File contents, git history      |
-| Tools     | Model-controlled       | Functions exposed to the LLM to take actions       | API POST requests, file writing |
+| 基础功能 | 控制方式              | 描述                                             | 示例                           |
+| -------- | --------------------- | ------------------------------------------------ | ------------------------------ |
+| 提示     | 用户控制              | 由用户选择调用的交互式模板                       | 斜杠命令、菜单选项             |
+| 资源     | 应用程序控制          | 由客户端附加和管理的上下文数据                   | 文件内容、git历史记录          |
+| 工具     | 模型控制              | 向LLM公开的、用于执行操作的功能                  | API POST请求、文件写入操作     |
 
-Explore these key primitives in more detail below:
+请在下方详细了解这些关键的基础功能：
 
 <CardGroup cols={3}>
   <Card
-    title="Prompts"
+    title="提示"
     icon="message"
     href="/specification/2025-06-18/server/prompts"
   />
   <Card
-    title="Resources"
+    title="资源"
     icon="file-lines"
     href="/specification/2025-06-18/server/resources"
   />
   <Card
-    title="Tools"
+    title="工具"
     icon="wrench"
     href="/specification/2025-06-18/server/tools"
   />
