@@ -1,0 +1,124 @@
+---
+title: 规范
+---
+
+[模型上下文协议](https://modelcontextprotocol.io)（MCP）是一个开放协议，它使LLM应用程序与外部数据源和工具之间实现无缝集成。无论你是在构建一个由AI驱动的IDE，增强一个聊天界面，还是创建自定义的AI工作流，MCP都提供了一种标准化的方式，将LLM与它们所需的上下文连接起来。
+
+本规范定义了权威的协议要求，基于GitHub仓库中的TypeScript模式文件：
+[schema.ts](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-03-26/schema.ts)。
+
+如需实现指南和示例，请访问 [modelcontextprotocol.io](https://modelcontextprotocol.io)。
+
+本文档中出现的关键字“MUST”、“MUST NOT”、“REQUIRED”、“SHALL”、“SHALL NOT”、“SHOULD”、“SHOULD NOT”、“RECOMMENDED”、“NOT RECOMMENDED”、“MAY”和“OPTIONAL”，当且仅当它们全部用大写字母表示时，应按照[BCP 14](https://datatracker.ietf.org/doc/html/bcp14) [[RFC2119](https://datatracker.ietf.org/doc/html/rfc2119)] [[RFC8174](https://datatracker.ietf.org/doc/html/rfc8174)] 中的描述进行解释。
+
+## 概览
+
+MCP为应用程序提供了一种标准化的方式，以便：
+
+- 与语言模型共享上下文信息  
+- 向AI系统暴露工具和能力  
+- 构建可组合的集成和工作流  
+
+该协议使用 [JSON-RPC](https://www.jsonrpc.org/) 2.0 消息格式，在以下组件之间建立通信：
+
+- **Hosts（主机）**：启动连接的LLM应用程序  
+- **Clients（客户端）**：主机应用程序中的连接器  
+- **Servers（服务器）**：提供上下文和功能的服务  
+
+MCP在某种程度上借鉴了 [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) 的设计，后者为整个开发工具生态系统中的编程语言支持提供了标准。类似地，MCP标准化了如何将额外的上下文和工具集成到AI应用生态系统中。
+
+## 关键细节
+
+### 基础协议
+
+- [JSON-RPC](https://www.jsonrpc.org/) 消息格式  
+- 有状态连接  
+- 服务器与客户端的能力协商  
+
+### 特性
+
+服务器可向客户端提供以下任意特性：
+
+- **资源（Resources）**：供用户或AI模型使用的上下文和数据  
+- **提示（Prompts）**：面向用户的模板化消息和工作流  
+- **工具（Tools）**：供AI模型执行的功能  
+
+客户端可向服务器提供以下特性：
+
+- **采样（Sampling）**：由服务器发起的代理行为和递归LLM交互  
+
+### 额外工具
+
+- 配置管理  
+- 进度跟踪  
+- 请求取消  
+- 错误报告  
+- 日志记录  
+
+## 安全性与信任及安全保障
+
+模型上下文协议通过任意数据访问和代码执行路径启用了强大的功能。这种能力带来了重要的安全性和信任考量，所有实现者都必须认真应对。
+
+### 关键原则
+
+1. **用户同意与控制**
+   - 用户必须明确同意并理解所有的数据访问和操作  
+   - 用户必须保留对共享数据和执行操作的控制权  
+   - 实现者应提供清晰的用户界面以供审查和授权活动  
+
+2. **数据隐私**
+   - 主机在向服务器暴露用户数据之前必须获得用户的明确同意  
+   - 主机在未获得用户同意前不得将资源数据传输到其他地方  
+   - 用户数据应受到适当的访问控制保护  
+
+3. **工具安全**
+   - 工具代表任意代码执行，必须谨慎对待。  
+     - 特别是，工具行为的描述（如注解）应被视为不可信，除非来自可信的服务器。  
+   - 主机在调用任何工具之前必须获得用户的明确同意  
+   - 用户应在授权使用前清楚每个工具的功能  
+
+4. **LLM采样控制**
+   - 用户必须明确批准任何LLM采样请求  
+   - 用户应能控制以下内容：
+     - 是否进行采样  
+     - 将发送的实际提示  
+     - 服务器可以看到哪些结果  
+   - 协议有意限制服务器对提示的可见性  
+
+### 实现指南
+
+虽然MCP本身无法在协议层面强制执行这些安全原则，但实现者**应该**：
+
+1. 在其应用程序中构建稳健的同意和授权流程  
+2. 提供清晰的安全影响文档  
+3. 实现适当的访问控制和数据保护措施  
+4. 在其集成中遵循最佳安全实践  
+5. 在功能设计中考虑隐私影响  
+
+## 了解更多
+
+详细了解每个协议组件的详细规范：
+
+<CardGroup cols={5}>
+  <Card
+    title="架构"
+    icon="sitemap"
+    href="/specification/2025-03-26/architecture"
+  />
+  <Card
+    title="基础协议"
+    icon="code"
+    href="/specification/2025-03-26/basic"
+  />
+  <Card
+    title="服务器特性"
+    icon="server"
+    href="/specification/2025-03-26/server"
+  />
+  <Card
+    title="客户端特性"
+    icon="user"
+    href="/specification/2025-03-26/client"
+  />
+  <Card title="贡献指南" icon="pencil" href="/development/contributing" />
+</CardGroup>

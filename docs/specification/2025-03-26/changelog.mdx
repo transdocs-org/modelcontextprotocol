@@ -1,0 +1,25 @@
+---
+title: 主要变更
+---
+
+本文档列出了自上一版本 [2024-11-05](/specification/2024-11-05) 以来，
+对模型上下文协议 (MCP) 规范所做的变更。
+
+## 主要变更
+
+1. 基于 OAuth 2.1 添加了全面的 **[授权框架](/specification/2025-03-26/basic/authorization)**（PR [#133](https://github.com/modelcontextprotocol/specification/pull/133)）
+1. 使用更灵活的 **[可流式 HTTP 传输协议](/specification/2025-03-26/basic/transports#streamable-http)** 替换了之前的 HTTP+SSE 传输协议（PR [#206](https://github.com/modelcontextprotocol/specification/pull/206)）
+1. 增加了对 JSON-RPC **[批量处理](https://www.jsonrpc.org/specification#batch)** 的支持（PR [#228](https://github.com/modelcontextprotocol/specification/pull/228)）
+1. 添加了全面的 **工具注解**，以更好地描述工具的行为，例如其是否为只读或具有破坏性（PR [#185](https://github.com/modelcontextprotocol/specification/pull/185)）
+
+## 其他模式变更
+
+- 在 `ProgressNotification` 中添加了 `message` 字段，用于提供描述性的状态更新
+- 增加了对音频数据的支持，与现有的文本和图像内容类型并列
+- 添加了 `completions` 功能，用于明确表示对参数自动补全建议的支持
+
+更多详细信息请参见 [更新后的模式](http://github.com/modelcontextprotocol/specification/tree/main/schema/2025-03-26/schema.ts)。
+
+## 完整变更日志
+
+如需查看自上一协议版本以来所有变更的完整列表，请参见 [GitHub](https://github.com/modelcontextprotocol/specification/compare/2024-11-05...2025-03-26)。

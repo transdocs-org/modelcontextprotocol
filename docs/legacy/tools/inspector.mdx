@@ -1,0 +1,157 @@
+---
+title: 检查器
+description: 深入指导如何使用 MCP 检查器测试和调试 Model Context Protocol 服务器
+---
+
+[MCP 检查器](https://github.com/modelcontextprotocol/inspector) 是一款用于测试和调试 MCP 服务器的交互式开发工具。虽然[调试指南](/legacy/tools/debugging) 将检查器作为整体调试工具包的一部分进行了介绍，但本文档将详细探讨检查器的功能与能力。
+
+## 入门指南
+
+### 安装与基本用法
+
+检查器可以直接通过 `npx` 运行，无需安装：
+
+```bash
+npx @modelcontextprotocol/inspector <command>
+```
+
+```bash
+npx @modelcontextprotocol/inspector <command> <arg1> <arg2>
+```
+
+#### 从 NPM 或 PyPi 检查服务器
+
+从 [NPM](https://npmjs.com) 或 [PyPi](https://pypi.org) 启动服务器包的常见方式：
+
+<Tabs>
+
+  <Tab title="NPM 包">
+
+```bash
+npx -y @modelcontextprotocol/inspector npx <package-name> <args>
+# 例如
+npx -y @modelcontextprotocol/inspector npx @modelcontextprotocol/server-filesystem /Users/username/Desktop
+```
+
+  </Tab>
+
+  <Tab title="PyPi 包">
+
+```bash
+npx @modelcontextprotocol/inspector uvx <package-name> <args>
+# 例如
+npx @modelcontextprotocol/inspector uvx mcp-server-git --repository ~/code/mcp/servers.git
+```
+
+  </Tab>
+</Tabs>
+
+#### 检查本地开发的服务器
+
+要检查本地开发或作为仓库下载的服务器，最常见的方法是：
+
+<Tabs>
+  <Tab title="TypeScript">
+
+```bash
+npx @modelcontextprotocol/inspector node path/to/server/index.js args...
+```
+
+  </Tab>
+  <Tab title="Python">
+
+```bash
+npx @modelcontextprotocol/inspector \
+  uv \
+  --directory path/to/server \
+  run \
+  package-name \
+  args...
+```
+
+  </Tab>
+</Tabs>
+
+请仔细阅读附带的 README 文件以获取最准确的使用说明。
+
+## 功能概览
+
+<Frame caption="MCP 检查器界面">
+  <img src="/images/mcp-inspector.png" />
+</Frame>
+
+检查器提供了多种功能来与您的 MCP 服务器进行交互：
+
+### 服务器连接面板
+
+- 允许选择用于连接服务器的[传输方式](/legacy/concepts/transports)
+- 对于本地服务器，支持自定义命令行参数和环境
+
+### 资源标签页
+
+- 列出所有可用资源
+- 显示资源元数据（MIME 类型、描述）
+- 支持查看资源内容
+- 支持订阅测试
+
+### 提示标签页
+
+- 显示可用提示模板
+- 显示提示参数和描述
+- 支持使用自定义参数测试提示
+- 预览生成的消息
+
+### 工具标签页
+
+- 列出可用工具
+- 显示工具模式和描述
+- 支持使用自定义输入测试工具
+- 显示工具执行结果
+
+### 通知面板
+
+- 展示从服务器记录的所有日志
+- 显示从服务器接收的通知
+
+## 最佳实践
+
+### 开发工作流程
+
+1. 启动开发
+   - 使用您的服务器启动检查器
+   - 验证基本连接
+   - 检查功能协商
+
+2. 迭代测试
+   - 修改服务器代码
+   - 重新构建服务器
+   - 重新连接检查器
+   - 测试受影响的功能
+   - 监控消息传输
+
+3. 测试边界情况
+   - 无效输入
+   - 缺少提示参数
+   - 并发操作
+   - 验证错误处理和错误响应
+
+## 下一步
+
+<CardGroup cols={2}>
+    <Card
+        title="检查器仓库"
+        icon="github"
+        href="https://github.com/modelcontextprotocol/inspector"
+    >
+        查看 MCP 检查器源代码
+    </Card>
+
+    <Card
+        title="调试指南"
+        icon="bug"
+        href="/legacy/tools/debugging"
+    >
+        了解更广泛的调试策略
+    </Card>
+
+</CardGroup>

@@ -1,0 +1,126 @@
+---
+title: 概述
+---
+
+<div id="enable-section-numbers" />
+
+<Info>**协议修订**：2025-06-18</Info>
+
+模型上下文协议（Model Context Protocol）由几个关键组件组成，这些组件协同工作：
+
+- **基础协议**：核心 JSON-RPC 消息类型
+- **生命周期管理**：连接初始化、能力协商和会话控制
+- **授权**：基于 HTTP 传输的身份验证和授权框架
+- **服务器功能**：服务器暴露的资源、提示和工具
+- **客户端功能**：客户端提供的采样和根目录列表
+- **实用工具**：跨领域问题如日志记录和参数补全
+
+所有实现 **必须** 支持基础协议和生命周期管理组件。其他组件可以根据应用程序的具体需求选择性实现。
+
+## 消息
+
+MCP 客户端和服务器之间的所有消息 **必须** 遵循 [JSON-RPC 2.0](https://www.jsonrpc.org/specification) 规范。该协议定义了以下类型的消息：
+
+### 请求
+
+请求由客户端发送到服务器，或由服务器发送到客户端，用于启动一个操作。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  id: string | number;
+  method: string;
+  params?: {
+    [key: string]: unknown;
+  };
+}
+```
+
+- 请求 **必须** 包含字符串或整数形式的 ID。
+- 与基础 JSON-RPC 不同，ID **不得** 为 `null`。
+- 请求 ID **不得** 在同一会话中由请求方重复使用。
+
+### 响应
+
+响应是对请求的回复，包含操作的结果或错误信息。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  id: string | number;
+  result?: {
+    [key: string]: unknown;
+  }
+  error?: {
+    code: number;
+    message: string;
+    data?: unknown;
+  }
+}
+```
+
+- 响应 **必须** 包含与对应请求相同的 ID。
+- 响应进一步分为 **成功结果** 或 **错误**。必须设置 `result` 或 `error` 之一，**不得** 同时设置两者。
+- 结果可以是任意 JSON 对象结构，而错误至少 **必须** 包含错误码和消息。
+- 错误码 **必须** 是整数。
+
+### 通知
+
+通知由客户端发送到服务器，或由服务器发送到客户端，作为单向消息。接收方 **不得** 发送响应。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  method: string;
+  params?: {
+    [key: string]: unknown;
+  };
+}
+```
+
+- 通知 **不得** 包含 ID。
+
+## 授权
+
+MCP 提供了一个 [授权](/specification/2025-06-18/basic/authorization) 框架供 HTTP 使用。
+使用基于 HTTP 的传输的实现 **应该** 符合此规范，而使用 STDIO 传输的实现 **不应该** 遵循此规范，而是从环境中获取凭证。
+
+此外，客户端和服务器 **可以** 协商自己的自定义身份验证和授权策略。
+
+如需进一步讨论或为 MCP 的授权机制演进做出贡献，请加入我们在
+[GitHub Discussions](https://github.com/modelcontextprotocol/specification/discussions)
+的讨论，共同塑造协议的未来！
+
+## 协议结构定义
+
+协议的完整规范定义为一个
+[TypeScript 结构定义](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-06-18/schema.ts)。
+这是所有协议消息和结构的权威来源。
+
+还有一个
+[JSON Schema](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-06-18/schema.json)，
+它由 TypeScript 的权威源自动生成，可用于各种自动化工具。
+
+### 通用字段
+
+#### `_meta`
+
+`_meta` 属性/参数由 MCP 保留，供客户端和服务器在其交互中附加额外的元数据。
+
+某些键名由 MCP 保留用于协议级别的元数据；实现 **不得** 对这些键名的值做任何假设。
+
+此外，[结构定义](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-06-18/schema.ts) 中的定义可能为特定用途保留特定名称的元数据，这些定义中会声明这些保留名称。
+
+**键名格式：** 有效的 `_meta` 键名由两个部分组成：一个可选的 **前缀** 和一个 **名称**。
+
+**前缀：**
+
+- 如果指定，**必须** 是由点号 (`.`) 分隔的一系列标签，后跟一个斜杠 (`/`)。
+  - 标签 **必须** 以字母开头，以字母或数字结尾；中间字符可以是字母、数字或连字符 (`-`)。
+- 任何以零个或多个有效标签开头，后接 `modelcontextprotocol` 或 `mcp`，再后接任意有效标签的前缀，均为 MCP **保留** 使用。
+  - 例如：`modelcontextprotocol.io/`、`mcp.dev/`、`api.modelcontextprotocol.org/` 和 `tools.mcp.com/` 均为保留前缀。
+
+**名称：**
+
+- 除非为空，**必须** 以字母数字字符（`[a-z0-9A-Z]`）开头和结尾。
+- 中间 **可以** 包含连字符 (`-`)、下划线 (`_`)、点号 (`.`) 和字母数字字符。
