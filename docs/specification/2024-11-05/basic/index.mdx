@@ -1,0 +1,76 @@
+---
+title: 概述
+---
+
+<Info>**协议修订版本**: 2024-11-05</Info>
+
+MCP 客户端与服务器之间的所有消息 **必须** 遵循 [JSON-RPC 2.0](https://www.jsonrpc.org/specification) 规范。该协议定义了三种基本类型的消息：
+
+| 类型            | 描述                                 | 要求                                   |
+| --------------- | ------------------------------------ | -------------------------------------- |
+| `请求(Requests)`   | 用于发起操作的消息                      | 必须包含唯一 ID 和方法名                 |
+| `响应(Responses)`  | 用于回复请求的消息                      | 必须包含与请求相同的 ID                  |
+| `通知(Notifications)` | 无需回复的单向消息                      | 不得包含 ID                             |
+
+**响应(Responses)** 还可以进一步分为 **成功结果** 和 **错误**。结果可以采用任意 JSON 对象结构，而错误至少必须包含错误码和错误信息。
+
+## 协议层级
+
+Model Context 协议由多个协同工作的关键组件组成：
+
+- **基础协议(Base Protocol)**：核心的 JSON-RPC 消息类型
+- **生命周期管理(Lifecycle Management)**：连接初始化、能力协商和会话控制
+- **服务器特性(Server Features)**：服务器暴露的资源、提示和工具
+- **客户端特性(Client Features)**：客户端提供的采样和根目录列表
+- **工具类功能(Utilities)**：跨领域功能，如日志记录和参数补全
+
+所有实现 **必须** 支持基础协议和生命周期管理组件。其他组件可以根据应用程序的具体需求选择性实现。
+
+这些协议层级在建立清晰的关注点分离的同时，支持客户端与服务器之间的丰富交互。模块化设计使得实现可以根据需要精确支持所需的功能。
+
+有关各个组件的更多细节，请参阅以下页面：
+
+<CardGroup cols={3}>
+  <Card
+    title="生命周期"
+    icon="arrows-rotate"
+    href="/specification/2024-11-05/basic/lifecycle"
+  />
+  <Card
+    title="资源"
+    icon="file-lines"
+    href="/specification/2024-11-05/server/resources"
+  />
+  <Card
+    title="提示"
+    icon="message"
+    href="/specification/2024-11-05/server/prompts"
+  />
+  <Card
+    title="工具"
+    icon="wrench"
+    href="/specification/2024-11-05/server/tools"
+  />
+  <Card
+    title="日志"
+    icon="rectangle-list"
+    href="/specification/2024-11-05/server/utilities/logging"
+  />
+  <Card
+    title="采样"
+    icon="code"
+    href="/specification/2024-11-05/client/sampling"
+  />
+</CardGroup>
+
+## 认证
+
+身份验证和授权目前不属于 MCP 核心规范的一部分，但我们正在考虑未来引入的方式。欢迎加入 [GitHub 讨论](https://github.com/modelcontextprotocol/specification/discussions) 共同塑造协议的未来！
+
+客户端和服务器 **可以** 协商自定义的身份验证和授权策略。
+
+## 协议 Schema
+
+协议的完整规范以 [TypeScript schema](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.ts) 的形式定义，这是所有协议消息和结构的权威来源。
+
+此外还提供了 [JSON Schema](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.json)，它由 TypeScript 的权威源文件自动生成，可用于各种自动化工具。

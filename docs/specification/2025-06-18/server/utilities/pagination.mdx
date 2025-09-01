@@ -1,0 +1,92 @@
+---
+title: 分页
+---
+
+<div id="enable-section-numbers" />
+
+<Info>**协议修订**: 2025-06-18</Info>
+
+Model Context Protocol (MCP) 支持对可能返回大量结果集的列表操作进行分页。分页允许服务器将结果分成较小的块返回，而不是一次性全部返回。
+
+当你通过互联网连接到外部服务时，分页尤其重要。同时，对于本地集成来说，分页也有助于避免处理大规模数据集时的性能问题。
+
+## 分页模型
+
+MCP 中的分页采用不透明的游标（cursor）方式，而不是传统的页码编号方式。
+
+- **游标（cursor）** 是一个不透明的字符串令牌，表示结果集中的某个位置
+- **页面大小（page size）** 由服务器决定，客户端 **不得** 假设页面大小是固定的
+
+## 响应格式
+
+当服务器发送包含以下内容的**响应**时，分页开始：
+
+- 当前页的结果
+- 如果还有更多结果，可选的 `nextCursor` 字段
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "123",
+  "result": {
+    "resources": [...],
+    "nextCursor": "eyJwYWdlIjogM30="
+  }
+}
+```
+
+## 请求格式
+
+收到游标后，客户端可以通过发送包含该游标的请求来继续分页：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "resources/list",
+  "params": {
+    "cursor": "eyJwYWdlIjogMn0="
+  }
+}
+```
+
+## 分页流程
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: 列表请求（无游标）
+    loop 分页循环
+      Server-->>Client: 结果页 + nextCursor
+      Client->>Server: 列表请求（带游标）
+    end
+```
+
+## 支持分页的操作
+
+以下 MCP 操作支持分页：
+
+- `resources/list` - 列出可用资源
+- `resources/templates/list` - 列出资源模板
+- `prompts/list` - 列出可用提示
+- `tools/list` - 列出可用工具
+
+## 实现指南
+
+1. 服务器 **应该**：
+   - 提供稳定的游标
+   - 优雅地处理无效的游标
+
+2. 客户端 **应该**：
+   - 将缺失的 `nextCursor` 视为结果结束
+   - 支持分页和不分页的流程
+
+3. 客户端 **必须** 将游标视为不透明令牌：
+   - 不要假设游标的格式
+   - 不要尝试解析或修改游标
+   - 不要在会话之间持久化游标
+
+## 错误处理
+
+无效的游标 **应该** 返回错误码 -32602（参数无效）。

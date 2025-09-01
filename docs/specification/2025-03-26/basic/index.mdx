@@ -1,0 +1,105 @@
+---
+title: 概述
+---
+
+<Info>**协议修订**: 2025-03-26</Info>
+
+模型上下文协议由几个关键组件组成，这些组件协同工作：
+
+- **基础协议**：核心 JSON-RPC 消息类型
+- **生命周期管理**：连接初始化、能力协商和会话控制
+- **服务器功能**：服务器提供的资源、提示词和工具
+- **客户端功能**：客户端提供的采样和根目录列表
+- **工具类功能**：日志记录、参数补全等通用功能
+
+所有实现 **必须** 支持基础协议和生命周期管理组件。其他组件可以根据应用程序的具体需求选择性实现。
+
+这些协议层级在确保客户端与服务器之间丰富交互的同时，建立了清晰的关注点分离。
+
+## 消息
+
+MCP 客户端和服务器之间的所有消息 **必须** 遵循
+[JSON-RPC 2.0](https://www.jsonrpc.org/specification) 规范。协议定义了以下类型的消息：
+
+### 请求
+
+请求由客户端发送至服务器，或由服务器发送至客户端，用于启动某个操作。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  id: string | number;
+  method: string;
+  params?: {
+    [key: string]: unknown;
+  };
+}
+```
+
+- 请求 **必须** 包含字符串或整数类型的 ID。
+- 与基础 JSON-RPC 不同，ID **不得** 为 `null`。
+- 请求方在同一个会话中 **不得** 重复使用已经使用过的 ID。
+
+### 响应
+
+响应用于回复请求，包含操作的结果或错误信息。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  id: string | number;
+  result?: {
+    [key: string]: unknown;
+  }
+  error?: {
+    code: number;
+    message: string;
+    data?: unknown;
+  }
+}
+```
+
+- 响应 **必须** 包含与所对应请求相同的 ID。
+- 响应进一步细分为 **成功结果** 或 **错误**。必须设置 `result` 或 `error` 之一，**不得** 同时设置两者。
+- 结果可以遵循任何 JSON 对象结构，而错误至少 **必须** 包含错误代码和消息。
+- 错误代码 **必须** 为整数。
+
+### 通知
+
+通知由客户端发送至服务器，或由服务器发送至客户端，作为单向消息。接收方 **不得** 发送响应。
+
+```typescript
+{
+  jsonrpc: "2.0";
+  method: string;
+  params?: {
+    [key: string]: unknown;
+  };
+}
+```
+
+- 通知 **不得** 包含 ID。
+
+### 批处理
+
+JSON-RPC 还定义了一种
+[批量发送多个请求和通知](https://www.jsonrpc.org/specification#batch) 的方法，即将它们放入一个数组中发送。MCP 实现 **可以** 支持发送 JSON-RPC 批处理请求，但 **必须** 支持接收 JSON-RPC 批处理请求。
+
+## 认证
+
+MCP 提供了一个 [认证授权](/specification/2025-03-26/basic/authorization) 框架供 HTTP 使用。基于 HTTP 的传输实现 **应该** 遵循该规范，而基于 STDIO 的传输实现 **不应该** 遵循此规范，而是从环境中获取凭证。
+
+此外，客户端和服务器 **可以** 协商自己的自定义认证和授权策略。
+
+如需进一步讨论或为 MCP 的认证机制演进做出贡献，请加入我们的
+[GitHub Discussion](https://github.com/modelcontextprotocol/specification/discussions)，共同塑造协议的未来！
+
+## 协议 Schema
+
+协议的完整规范定义为一个
+[TypeScript schema](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-03-26/schema.ts)。
+这是所有协议消息和结构的权威来源。
+
+此外还有一个
+[JSON Schema](https://github.com/modelcontextprotocol/specification/blob/main/schema/2025-03-26/schema.json)，
+它由 TypeScript 的权威源码自动生成，可用于各种自动化工具。
